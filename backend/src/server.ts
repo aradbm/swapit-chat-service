@@ -7,7 +7,7 @@ const app: Express = express();
 const port = process.env.PORT || 3000;
 
 app.use(express.json());
-import WebSocket from "ws";
+// import WebSocket from "ws";
 
 // const wss = new WebSocket.Server({ port: 8080 });
 
@@ -24,20 +24,22 @@ import WebSocket from "ws";
 //   });
 // });
 
-// const startServer = async () => {
-//   try {
-//     await connectToMongoDB();
-//     await initializeRedis();
-//     if (await test())
-//       console.log("Successfuly tested connection to redis and mongo");
+const startServer = async () => {
+  try {
+    await connectToMongoDB();
+    await initializeRedis();
+    if (await test())
+      console.log("Successfuly tested connection to redis and mongo");
 
-//     app.listen(port, () => {
-//       console.log(`Server running at http://localhost:${port}`);
-//     });
-//   } catch (error) {
-//     console.error("Error starting server:", error);
-//     process.exit(1);
-//   }
-// };
+    app.listen(port, () => {
+      console.log(`Server running at http://localhost:${port}`);
+    });
+  } catch (error) {
+    console.error("Error starting server:", error);
+    process.exit(1);
+  } finally {
+    console.log("Finnished starting server");
+  }
+};
 
-// startServer();
+startServer();
