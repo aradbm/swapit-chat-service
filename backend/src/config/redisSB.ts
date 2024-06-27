@@ -1,25 +1,38 @@
 import * as redis from "redis";
 
-// const redisUrl = "redis://redis:6379";
+const createRedisClient = () => {
+  return redis.createClient({
+    socket: {
+      host: "localhost",
+      port: 6379,
+    },
+  });
+};
 
-const redisClient = redis.createClient({
-  socket: {
-    host: "localhost",
-    port: 6379,
-  },
-});
+const redisPubClient = createRedisClient();
+const redisSubClient = createRedisClient();
 
-redisClient.on("error", (err: Error) => {
-  console.error("Redis connection error:", err);
+redisPubClient.on("error", (err: Error) => {
+  console.error("Redis Pub client connection error:", err);
   process.exit(1);
 });
 
-redisClient.on("connect", async () => {
-  console.log("Connected to Redis");
+redisSubClient.on("error", (err: Error) => {
+  console.error("Redis Sub client connection error:", err);
+  process.exit(1);
 });
 
-async function initializeRedis() {
-  await redisClient.connect();
+redisPubClient.on("connect", () => {
+  console.log("Connected to Redis Pub client");
+});
+
+redisSubClient.on("connect", () => {
+  console.log("Connected to Redis Sub client");
+});
+
+async function connectToRedisPubSub(): Promise<void> {
+  await redisPubClient.connect();
+  await redisSubClient.connect();
 }
 
-export { redisClient, initializeRedis };
+export { redisPubClient, redisSubClient, connectToRedisPubSub };

@@ -1,37 +1,28 @@
-import { redisClient } from "./config/redisSB";
-import mongoose, { Document, Schema } from "mongoose";
-
-const testSchema: Schema = new Schema({
-  hi: {
-    type: String,
-    required: true,
-    description: "A greeting message",
-  },
-});
-
-const TestModel = mongoose.model<Document>("Test", testSchema);
+import { redisSubClient, redisPubClient } from "./config/redisSB";
+import mongoose from "mongoose";
 
 const test = async () => {
   try {
-    await redisClient.set("hello", "world");
-    const res = await redisClient.get("hello");
-    if (res !== "world") throw "error setting";
+    // Test Redis pub/sub
+    let testMessage: string = "";
+    await redisSubClient.subscribe("test-channel", (message) => {
+      testMessage = message;
+    });
+    await redisPubClient.publish("test-channel", "success");
+    if (testMessage !== "success") throw new Error("Redis pub/sub test failed");
+    await redisSubClient.unsubscribe("test-channel");
 
+    // Test MongoDB
+    const testSchema = new mongoose.Schema({ hi: String });
+    const TestModel = mongoose.model("Test", testSchema, "tests");
     const newTest = new TestModel({ hi: "test" });
     await newTest.save();
-    // console.log('Document inserted into MongoDB');
+    await TestModel.deleteOne({ _id: newTest._id });
 
-    // console.log('Successfully set and retrieved value from Redis');
-    // console.log('Document inserted into MongoDB:', newTest);
     return true;
   } catch (err) {
-    if (err instanceof Error) {
-      console.error("Error occurred:", err.message);
-    } else {
-      console.error("An unknown error occurred:", err);
-    }
-  } finally {
-    await redisClient.quit();
+    console.error("Test failed:", err instanceof Error ? err.message : err);
+    return false;
   }
 };
 

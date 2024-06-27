@@ -24,11 +24,11 @@ const UserSchema: Schema = new Schema(
       default: "default-photo-url.jpg",
       description: "URL of user's profile photo",
     },
-    openConversations: [
+    openRooms: [
       {
         type: Schema.Types.ObjectId,
-        ref: "Conversation",
-        description: "List of user's open conversations",
+        ref: "Room",
+        description: "List of user's open rooms",
       },
     ],
   },
