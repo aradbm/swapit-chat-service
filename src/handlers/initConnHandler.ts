@@ -42,7 +42,7 @@ export async function handleInitConnection(
       ws.send(JSON.stringify(message));
     });
   } catch (error) {
-    console.error("Error in handleInitConnection:", error);
+    console.error(error);
     ws.send(
       JSON.stringify({
         type: "error",

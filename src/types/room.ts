@@ -1,5 +1,5 @@
 import { Document, Types } from "mongoose";
-import { IMessage } from "./message";
+import { IMessage } from "./roomMessage";
 
 export interface IRoom extends Document<string> {
   participants: Types.Array<string>;

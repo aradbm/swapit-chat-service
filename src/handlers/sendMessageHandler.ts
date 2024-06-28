@@ -6,8 +6,7 @@ import { redisPubClient } from "../config/redisSB";
 /**
  * When a user sends a message to a room:
  * 1. Update message to mongo
- * 2. Send message to Redis channel room
- * 3. Send message to all users update channels inside the room
+ * 2. Send message to all users update channels inside the room
  */
 export async function handleSendMessage(
   ws: WebSocket,
@@ -38,16 +37,6 @@ export async function handleSendMessage(
     }
 
     // 2
-    const roomChannel = `room:${roomID}`;
-    await redisPubClient.publish(
-      roomChannel,
-      JSON.stringify({
-        type: "roomMessage",
-        message: newMessage,
-      })
-    );
-
-    // 3
     for (const participantId of updatedRoom.participants) {
       const userChannel = `user:${participantId}:updates`;
       if (participantId !== userID) {
@@ -61,8 +50,11 @@ export async function handleSendMessage(
         );
       }
     }
-    ws.send(JSON.stringify({ type: "messageSent" }));
+    ws.send(JSON.stringify({ type: "messageSent", isSent: true }));
   } catch (error) {
-    console.error("Error in handleSendMessage:", error);
+    console.error(error);
+    ws.send(
+      JSON.stringify({ type: "error", message: "Failed to send message" })
+    );
   }
 }

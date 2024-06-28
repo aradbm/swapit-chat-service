@@ -1,6 +1,5 @@
 import { WebSocket } from "ws";
 import { RoomModel } from "../models/room";
-import { redisSubClient } from "../config/redisSB";
 
 /**
  * When user leave a room (indefenetly, not disconnect from live updates)
@@ -11,10 +10,6 @@ export async function handleLeaveRoom(
   userID: string
 ) {
   try {
-    // Unsubscribe from room's Redis channel
-    const roomChannel = `room:${roomID}`;
-    await redisSubClient.unsubscribe(roomChannel);
-
     await RoomModel.findByIdAndUpdate(roomID, {
       $pull: { participants: userID },
     });

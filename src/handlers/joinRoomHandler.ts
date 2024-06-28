@@ -22,20 +22,13 @@ export async function handleJoinRoom(
       room.participants.push(userID);
       await room.save();
     }
-    console.log("added user to room");
-
-    // Subscribe user to room's Redis channel
-    const roomChannel = `room:${roomID}`;
-    await redisSubClient.subscribe(roomChannel, (message) => {
-      ws.send(message);
-    });
-    console.log("Successfully subscribed to room channel");
+    console.log(`added user${userID} to room${roomID}`);
 
     // Send whole room back
     ws.send(JSON.stringify({ type: "updatedRoom", updatedRoom: room }));
     console.log("sent room history");
   } catch (error) {
-    console.error("Error in handleJoinRoom:", error);
+    console.error(error);
     ws.send(JSON.stringify({ type: "error", message: "Failed to join room" }));
   }
 }
