@@ -7,6 +7,7 @@ import { redisPubClient } from "../config/redisSB";
  * When a user sends a message to a room:
  * 1. Update message to mongo
  * 2. Send message to all users update channels inside the room
+ * 3. Publish to kafka channel
  */
 export async function handleSendMessage(
   ws: WebSocket,
@@ -50,6 +51,14 @@ export async function handleSendMessage(
         );
       }
     }
+
+    // 3
+    const kafkaMessage = {
+      roomID: roomID,
+      message: newMessage,
+    };
+    await redisPubClient.publish("kafkaChannel", JSON.stringify(kafkaMessage));
+
     ws.send(JSON.stringify({ type: "messageSent", isSent: true }));
   } catch (error) {
     console.error(error);
