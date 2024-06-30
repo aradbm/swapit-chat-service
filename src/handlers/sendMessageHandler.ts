@@ -46,7 +46,7 @@ export async function handleSendMessage(
           JSON.stringify({
             type: "roomMessage",
             roomID: roomID,
-            message: newMessage,
+            message: updatedRoom.lastMessage,
           })
         );
       }

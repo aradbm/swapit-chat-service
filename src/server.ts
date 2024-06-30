@@ -20,7 +20,7 @@ const startServer = async () => {
     console.log(`WebSocket server started on port ${PORT}`);
   } catch (error) {
     console.error("------------Error starting server------------\n", error);
-    
+
     process.exit(1);
   }
 };
